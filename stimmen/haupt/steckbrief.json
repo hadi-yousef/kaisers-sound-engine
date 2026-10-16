@@ -1,0 +1,14 @@
+{
+ "name": "Hauptstimme",
+ "kurz": "Kinoerzähler der zwanziger Jahre",
+ "beschreibung": "Sonore, theatralische Männerstimme eines deutschen Kinoerzählers, etwa fünfzig, pathetisch und warm, deutliche Betonung.",
+ "grundton_hz": 164,
+ "passt_fuer": [
+  "Spielfilme",
+  "Trailer",
+  "Märchen",
+  "Lehrfilme"
+ ],
+ "herkunft": "Künstlich entworfen mit Qwen3-TTS VoiceDesign – keine reale Person.",
+ "seit": "2026-10-14"
+}

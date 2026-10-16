@@ -1,0 +1,8 @@
+# entsteht beim Benutzen
+.venv/
+ausgabe/
+lager/
+__pycache__/
+*.pyc
+.adresse
+.DS_Store

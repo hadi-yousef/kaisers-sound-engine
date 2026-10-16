@@ -1,0 +1,12 @@
+{
+ "temperatur": [
+  0.7,
+  0.8
+ ],
+ "versuche": 3,
+ "schwelle": 0.15,
+ "blende_ms": 8,
+ "ende_ok": null,
+ "klang": "rein",
+ "hinweis": "ende_ok null: keine Abschneide-Prüfung am Satzende (die Stimme endet von Natur aus hart)"
+}

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaiser’s Sound-Engine</title>
+<style>
+  :root {
+    --bg: #f6f2ea; --karte: #fffdf8; --rand: #e4dccd; --text: #241d16; --leise: #6e6253; --akzent: #b8741a; --akzent-text: #fff;
+    --gut: #2f7d46; --warn: #a2571a; --fehler: #b3261e; --balken: #ece4d6; --schatten: 0 1px 2px rgba(60, 40, 10, .06), 0 6px 20px rgba(60, 40, 10, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15110e; --karte: #201a15; --rand: #3a3027; --text: #f1e8dc; --leise: #b3a593; --akzent: #e8a94a; --akzent-text: #1b130a;
+            --gut: #6cc785; --warn: #f0a560; --fehler: #ff8a80; --balken: #2d251e; --schatten: none; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 780px; margin: 0 auto; padding: 28px 16px 64px; }
+  header h1 { margin: 0; font-size: 28px; letter-spacing: .2px; }
+  header p { margin: 4px 0 24px; color: var(--leise); }
+  section { background: var(--karte); border: 1px solid var(--rand); border-radius: 14px; padding: 18px; margin-bottom: 16px; box-shadow: var(--schatten); }
+  h2 { margin: 0 0 12px; font-size: 17px; } h2 .nr { color: var(--akzent); margin-right: 6px; }
+  .stimmen { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .stimme { position: relative; border: 2px solid var(--rand); border-radius: 12px; padding: 12px 12px 10px; cursor: pointer; background: transparent; text-align: left; color: inherit; font: inherit; }
+  .stimme:hover { border-color: var(--akzent); }
+  .stimme[aria-checked="true"] { border-color: var(--akzent); background: color-mix(in srgb, var(--akzent) 10%, transparent); }
+  .stimme b { display: block; font-size: 16px; } .stimme .kurz { color: var(--leise); font-size: 14px; }
+  .stimme .zeile { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 6px; }
+  .marke { font-size: 12px; border: 1px solid var(--rand); border-radius: 99px; padding: 1px 8px; color: var(--leise); }
+  .probe { border: none; background: none; color: var(--akzent); font: inherit; font-size: 14px; cursor: pointer; padding: 2px 4px; }
+  textarea { width: 100%; min-height: 180px; resize: vertical; border: 1px solid var(--rand); border-radius: 10px; padding: 12px; font: inherit; background: var(--bg); color: var(--text); }
+  textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--akzent); outline-offset: 1px; }
+  .zaehler { display: flex; justify-content: space-between; color: var(--leise); font-size: 14px; margin-top: 6px; flex-wrap: wrap; gap: 8px; }
+  details { margin-top: 12px; } summary { cursor: pointer; color: var(--leise); }
+  .optionen { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; margin-top: 12px; }
+  label { font-size: 14px; color: var(--leise); display: block; } select, input[type=range] { width: 100%; margin-top: 4px; }
+  select { padding: 8px; border-radius: 8px; border: 1px solid var(--rand); background: var(--bg); color: var(--text); font: inherit; }
+  .haken { display: flex; gap: 8px; align-items: center; color: var(--text); font-size: 15px; }
+  .los { width: 100%; margin-top: 4px; padding: 15px; font-size: 18px; font-weight: 600; border: none; border-radius: 12px; background: var(--akzent); color: var(--akzent-text); cursor: pointer; }
+  .los:disabled { opacity: .55; cursor: default; }
+  .balken { height: 10px; background: var(--balken); border-radius: 99px; overflow: hidden; margin: 10px 0 8px; }
+  .balken div { height: 100%; width: 0; background: var(--akzent); transition: width .4s; }
+  .satz { font-style: italic; color: var(--leise); min-height: 1.5em; }
+  audio { width: 100%; margin: 6px 0 12px; }
+  .knopf { display: inline-block; padding: 10px 16px; border-radius: 10px; background: var(--akzent); color: var(--akzent-text); text-decoration: none; font-weight: 600; }
+  .fehler { color: var(--fehler); } .warn { color: var(--warn); font-size: 14px; } .gut { color: var(--gut); }
+  ul.liste { list-style: none; margin: 0; padding: 0; } ul.liste li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--rand); }
+  ul.liste li:first-child { border-top: none; } .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+  .klein { font-size: 13px; color: var(--leise); } .aktionen { display: flex; gap: 10px; flex-shrink: 0; } .aktionen a, .aktionen button { color: var(--akzent); background: none; border: none; font: inherit; font-size: 14px; cursor: pointer; text-decoration: none; padding: 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Kaiser’s Sound-Engine</h1>
+    <p>Text eingeben, Stimme wählen, sprechen lassen – fertig zum Anhören und Herunterladen.</p>
+  </header>
+
+  <section>
+    <h2><span class="nr">1</span>Stimme wählen</h2>
+    <div class="stimmen" id="stimmen" role="radiogroup" aria-label="Stimme">lädt …</div>
+  </section>
+
+  <section>
+    <h2><span class="nr">2</span>Text eingeben</h2>
+    <textarea id="text" placeholder="Hier den Text eingeben oder einfügen. Zahlen wie 1912 oder 2,5 Millionen werden auf Deutsch ausgesprochen."></textarea>
+    <div class="zaehler"><span id="zaehler">0 Zeichen</span><span class="klein">Tipp: ⌘ + Enter startet</span></div>
+    <details>
+      <summary>Mehr Einstellungen</summary>
+      <div class="optionen">
+        <div><label for="klang">Klang</label><select id="klang"></select></div>
+        <div><label for="pause">Pause zwischen Sätzen: <span id="pausewert">0,8</span> s</label><input id="pause" type="range" min="0.3" max="2" step="0.1" value="0.8"></div>
+        <div><label for="format">Dateiformat</label><select id="format"><option value="mp3">MP3 (klein, überall abspielbar)</option><option value="wav">WAV (unkomprimiert, für den Schnitt)</option></select></div>
+        <div>
+          <label class="haken"><input type="checkbox" id="schnell"> Schneller (ohne Hörprüfung)</label>
+          <label class="haken"><input type="checkbox" id="woertlich"> Zahlen nicht ausschreiben</label>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <button class="los" id="los">Sprechen</button>
+  <p class="fehler" id="meldung" role="alert"></p>
+
+  <section id="status" hidden>
+    <h2 id="statustitel">Wird gesprochen …</h2>
+    <div class="balken"><div id="balken"></div></div>
+    <div id="statustext" class="klein"></div>
+    <div class="satz" id="satz"></div>
+  </section>
+
+  <section id="ergebnis" hidden>
+    <h2 class="gut">✓ Fertig</h2>
+    <audio id="player" controls preload="auto"></audio>
+    <a class="knopf" id="laden" href="#" download>⬇ Herunterladen</a>
+    <span class="klein" id="info"></span>
+    <div id="warnungen"></div>
+  </section>
+
+  <section id="verlaufbox" hidden>
+    <h2>Zuletzt gesprochen</h2>
+    <ul class="liste" id="verlauf"></ul>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const speicher = { get(k, d) { try { return localStorage.getItem('se:' + k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem('se:' + k, v); } catch {} } };
+const KLANG = { grammophon: 'Grammophon (Kinoerzähler)', rein: 'Rein (ohne Färbung)', saal: 'Saal (mit Raumhall)', trocken: 'Trocken (ganz ohne Bearbeitung)' };
+const SPRACHE = { de: 'Deutsch', en: 'Englisch' };
+let stimmen = [], gewaehlt = speicher.get('stimme', ''), probe = new Audio(), max = 30000, laeuft = false;
+
+async function laden() {
+  const r = await (await fetch('/api/stimmen')).json();
+  stimmen = r.stimmen; max = r.max_zeichen;
+  if (!stimmen.some((s) => s.id === gewaehlt)) gewaehlt = (stimmen.find((s) => s.id === 'doku') ?? stimmen[0])?.id;
+  $('stimmen').innerHTML = '';
+  for (const s of stimmen) {
+    const b = document.createElement('div');
+    b.className = 'stimme'; b.setAttribute('role', 'radio'); b.tabIndex = 0; b.dataset.id = s.id;
+    b.innerHTML = `<b></b><span class="kurz"></span><div class="zeile"><span class="marke"></span>${s.probe ? '<button class="probe" type="button">▶ Hörprobe</button>' : ''}</div>`;
+    b.querySelector('b').textContent = s.name; b.querySelector('.kurz').textContent = s.kurz; b.title = s.beschreibung;
+    b.querySelector('.marke').textContent = SPRACHE[s.sprache] ?? s.sprache;
+    b.onclick = (e) => { if (!e.target.classList.contains('probe')) waehle(s.id); };
+    b.onkeydown = (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); waehle(s.id); } };
+    const pb = b.querySelector('.probe');
+    if (pb) pb.onclick = () => { if (!probe.paused && probe.dataset.id === s.id) { probe.pause(); pb.textContent = '▶ Hörprobe'; return; }
+      document.querySelectorAll('.probe').forEach((x) => (x.textContent = '▶ Hörprobe')); probe.src = s.probe; probe.dataset.id = s.id; probe.play(); pb.textContent = '■ Stopp';
+      probe.onended = () => (pb.textContent = '▶ Hörprobe'); };
+    $('stimmen').appendChild(b);
+  }
+  waehle(gewaehlt);
+  if (!r.ffmpeg) zeigeFehler('ffmpeg fehlt auf diesem Mac – im Terminal einmal „brew install ffmpeg“ ausführen.');
+  verlaufLaden();
+}
+function waehle(id) {
+  gewaehlt = id; speicher.set('stimme', id);
+  document.querySelectorAll('.stimme').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.id === id)));
+  const s = stimmen.find((x) => x.id === id);
+  $('klang').innerHTML = `<option value="">Standard: ${KLANG[s?.klang] ?? s?.klang}</option>` + Object.entries(KLANG).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+  zaehlen();
+}
+function zaehlen() {
+  const n = $('text').value.length, s = stimmen.find((x) => x.id === gewaehlt);
+  const sek = Math.round(n / (s?.sprache === 'en' ? 14 : 15.5));
+  $('zaehler').textContent = `${n.toLocaleString('de-DE')} Zeichen` + (n ? ` · ca. ${Math.floor(sek / 60)}:${String(sek % 60).padStart(2, '0')} min gesprochen` : '') + (n > max ? ` – zu lang (höchstens ${max.toLocaleString('de-DE')})` : '');
+}
+const zeigeFehler = (t) => { $('meldung').textContent = t; };
+$('text').value = speicher.get('text', '');
+$('text').addEventListener('input', () => { zaehlen(); speicher.set('text', $('text').value); });
+$('pause').addEventListener('input', () => ($('pausewert').textContent = Number($('pause').value).toLocaleString('de-DE')));
+$('text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sprechen(); } });
+$('los').onclick = sprechen;
+
+async function sprechen() {
+  if (laeuft) return;
+  zeigeFehler('');
+  const text = $('text').value.trim();
+  if (!text) return zeigeFehler('Bitte zuerst einen Text eingeben.');
+  if (!gewaehlt) return zeigeFehler('Bitte eine Stimme wählen.');
+  laeuft = true; $('los').disabled = true; $('ergebnis').hidden = true; $('status').hidden = false;
+  $('statustitel').textContent = 'Wird gesprochen …'; $('balken').style.width = '0'; $('satz').textContent = ''; $('statustext').textContent = 'Auftrag wird gestartet …';
+  try {
+    const r = await fetch('/api/sprechen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      text, stimme: gewaehlt, klang: $('klang').value, pause: $('pause').value, format: $('format').value, schnell: $('schnell').checked, woertlich: $('woertlich').checked }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.fehler || 'Fehler');
+    await verfolgen(d.id);
+  } catch (e) { zeigeFehler(e.message); $('status').hidden = true; }
+  laeuft = false; $('los').disabled = false;
+}
+async function verfolgen(id) {
+  const t0 = Date.now();
+  for (;;) {
+    await new Promise((r) => setTimeout(r, 700));
+    const a = await (await fetch('/api/auftrag/' + id)).json();
+    const sek = Math.round((Date.now() - t0) / 1000);
+    if (a.status === 'wartet') { $('statustext').textContent = `Wartet auf einen anderen Auftrag (noch ${a.vor_dir} davor) …`; continue; }
+    if (a.status === 'laeuft') {
+      $('balken').style.width = `${Math.max(4, (a.i / Math.max(1, a.n)) * 100)}%`;
+      $('statustext').textContent = a.i === 0 ? `Satz 1 von ${a.n} · Sprachmodell wird geladen … (${sek} s)` : `Satz ${Math.min(a.i + 1, a.n)} von ${a.n} · ${sek} s`;
+      $('satz').textContent = a.satz ? `„${a.satz}“` : ''; continue;
+    }
+    if (a.status === 'fehler') throw new Error('Das Sprechen ist fehlgeschlagen: ' + a.fehler);
+    if (a.status === 'fertig') { fertig(a); return; }
+  }
+}
+function fertig(a) {
+  $('status').hidden = true; $('ergebnis').hidden = false;
+  const url = '/ausgabe/' + encodeURIComponent(a.datei);
+  $('player').src = url; $('player').play().catch(() => {});
+  $('laden').href = url + '?download=1'; $('laden').setAttribute('download', a.datei);
+  $('info').textContent = ` ${a.n} ${a.n === 1 ? 'Satz' : 'Sätze'} · ${Number(a.sekunden).toLocaleString('de-DE')} s Rechenzeit · Klang ${KLANG[a.klang] ?? a.klang}`;
+  $('warnungen').innerHTML = '';
+  for (const u of a.unsicher ?? []) { const p = document.createElement('p'); p.className = 'warn'; p.textContent = `⚠ Undeutlich? „${u.satz}“ – verstanden wurde: „${u.gehoert}“. Tipp: Satz umformulieren.`; $('warnungen').appendChild(p); }
+  verlaufLaden();
+}
+async function verlaufLaden() {
+  const v = await (await fetch('/api/verlauf')).json();
+  $('verlaufbox').hidden = !v.length; $('verlauf').innerHTML = '';
+  for (const x of v) {
+    const li = document.createElement('li'), url = '/ausgabe/' + encodeURIComponent(x.datei);
+    li.innerHTML = '<div style="min-width:0"><div class="name"></div><div class="klein"></div></div><div class="aktionen"><button type="button">▶ Anhören</button><a>⬇ Laden</a></div>';
+    li.querySelector('.name').textContent = x.datei; li.querySelector('.klein').textContent = x.zeit;
+    li.querySelector('button').onclick = () => { $('ergebnis').hidden = false; $('player').src = url; $('player').play(); $('laden').href = url + '?download=1'; $('laden').setAttribute('download', x.datei); $('info').textContent = ' ' + x.datei; $('warnungen').innerHTML = ''; };
+    const a = li.querySelector('a'); a.href = url + '?download=1'; a.setAttribute('download', x.datei);
+    $('verlauf').appendChild(li);
+  }
+}
+laden().catch(() => zeigeFehler('Die Sound-Engine antwortet nicht – läuft das Startfenster noch?'));
+</script>
+</body>
+</html>

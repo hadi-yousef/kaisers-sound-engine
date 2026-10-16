@@ -1,0 +1,11 @@
+#!/bin/bash
+# Kaiser’s Sound-Engine: Text sprechen – sucht eine Python-Umgebung mit mlx-audio und startet sprich.py
+#   ./sprich <stimme> "Text"   ·   ./sprich --stimmen   ·   ./sprich -h
+DIR="$(cd "$(dirname "$0")" && pwd)"
+for P in "$SOUND_ENGINE_PYTHON" "$DIR/.venv/bin/python"; do
+  if [ -n "$P" ] && [ -x "$P" ] && "$P" -c "import mlx_audio, soundfile" >/dev/null 2>&1; then
+    exec env TOKENIZERS_PARALLELISM=false PYTHONWARNINGS=ignore "$P" "$DIR/sprich.py" "$@"
+  fi
+done
+echo "✗ Keine Python-Umgebung mit mlx-audio gefunden. Einmal einrichten:  ./einrichten.sh"
+exit 1

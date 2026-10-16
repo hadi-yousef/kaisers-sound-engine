@@ -1,0 +1,11 @@
+{
+ "temperatur": [
+  0.65,
+  0.75
+ ],
+ "versuche": 4,
+ "schwelle": 0.1,
+ "blende_ms": 10,
+ "klang": "grammophon",
+ "hinweis_klang": "Grammophon-Kette: Hochpass 210 Hz, Präsenz +5 dB bei 1,6 kHz, Röhrensättigung, Tiefpass 3,7 kHz"
+}

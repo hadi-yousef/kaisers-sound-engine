@@ -1,0 +1,13 @@
+{
+ "name": "Doku-Stimme",
+ "kurz": "Wissenschafts-Dokumentation",
+ "beschreibung": "Tiefe, warme Männerstimme, Mitte vierzig, ruhig und eindringlich wie ein Sprecher einer hochwertigen Wissenschafts-Doku, klares Hochdeutsch.",
+ "grundton_hz": 90,
+ "passt_fuer": [
+  "Lehrfilme",
+  "Dokumentationen",
+  "Erklärvideos"
+ ],
+ "herkunft": "Künstlich entworfen mit Qwen3-TTS VoiceDesign – keine reale Person.",
+ "seit": "2026-10-15"
+}
