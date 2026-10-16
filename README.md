@@ -7,6 +7,12 @@ mit Kommandozeile.
 
 ![Die Oberfläche der Sound-Engine im Browser](docs/oberflaeche.png)
 
+## Erklärvideo
+[![Erklärvideo „Einrichten und loslegen“ – zum Ansehen klicken](docs/video.png)](https://github.com/hadi-yousef/kaisers-sound-engine/releases/download/v1.0.0/Kaisers-Sound-Engine-Erklaervideo.mp4)
+
+**[▶ Erklärvideo „Einrichten und loslegen“ ansehen](https://github.com/hadi-yousef/kaisers-sound-engine/releases/download/v1.0.0/Kaisers-Sound-Engine-Erklaervideo.mp4)**
+(5:30, MP4, Full HD) – was du brauchst, Einrichtung Schritt für Schritt, Bedienung, Einstellungen und Tipps.
+
 *English summary below.*
 
 ## Was sie kann
@@ -130,5 +136,5 @@ Everything runs offline after setup.
 **Setup:** `brew install python@3.12 ffmpeg`, double-click `Sound-Engine starten.command` (on macOS 15+ allow it once in *System
 Settings → Privacy & Security → Open Anyway*), answer `j` to the setup question – it creates a virtual environment and downloads the
 models (several GB, once). Then the browser opens at http://127.0.0.1:47811. CLI: `./sprich doku "Hallo Welt"`.
-Requirements: Apple Silicon Mac, 16 GB RAM recommended, ~15 GB free disk. Only clone voices with the speaker's explicit consent.
+Requirements: Apple Silicon Mac, 16 GB RAM recommended, ~15 GB free disk. A German explainer video is attached to the [release](../../releases/latest). Only clone voices with the speaker's explicit consent.
 License: MIT.
