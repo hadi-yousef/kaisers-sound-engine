@@ -1,4 +1,6 @@
-# Kaiser's Sound-Engine
+<p align="center"><img src="docs/icon.png" width="160" alt="Icon der Sound-Engine: Sprechblase mit Klangwelle"></p>
+
+<h1 align="center">Kaiser's Sound-Engine</h1>
 
 **Text eingeben, Stimme wählen, sprechen lassen – fertig zum Anhören und Herunterladen.**
 Natürliche Sprachausgabe (Text-to-Speech) mit zwei Erzählerstimmen, komplett lokal auf dem Mac: kein Internet nach der
